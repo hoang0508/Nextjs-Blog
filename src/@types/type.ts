@@ -2,7 +2,7 @@ export interface BlogType {
   id: number;
   title: string;
   url: string;
-  createdAt: string | null;
+  createdAt: string;
   html: string;
   bodyText: string;
   tag: string[];

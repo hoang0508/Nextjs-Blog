@@ -15,6 +15,7 @@ const Home: NextPage = ({
   blogPost,
   tags,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
+  console.log(blogPost);
   // filterWord
   const [filterWord, setFilterWord] = useState<string[]>([]);
 
@@ -24,9 +25,11 @@ const Home: NextPage = ({
   // filter blog
   const filteredBlog: BlogType[] = useMemo(() => {
     return filterWord.length > 0
-      ? blogPost.filter((item: BlogType) => {
-          return filterWord.some((filter) => item.tag.includes(filter));
-        })
+      ? blogPost &&
+          blogPost.length > 0 &&
+          blogPost.filter((item: BlogType) => {
+            return filterWord.some((filter) => item.tag.includes(filter));
+          })
       : blogPost;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filterWord]);
@@ -97,12 +100,12 @@ export default Home;
 
 export const getServerSideProps: GetServerSideProps = async () => {
   const blog: BlogType[] = await getBlogs();
-  const tag = blog.flatMap((item) => item.tag);
+  const tag: string[] = blog?.flatMap((item) => item.tag);
   const tagBlog = [...new Set(tag)];
 
   return {
     props: {
-      blogPost: blog,
+      blogPost: blog || [],
       tags: tagBlog,
     },
   };
