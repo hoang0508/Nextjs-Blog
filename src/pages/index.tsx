@@ -98,7 +98,9 @@ const Home: NextPage = ({
 };
 export default Home;
 
-export const getServerSideProps: GetServerSideProps = async () => {
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  context.res.setHeader("Cache-Control", "s-maxage=5");
+
   const blog: BlogType[] = await getBlogs();
   const tag: string[] = blog?.flatMap((item) => item.tag);
   const tagBlog = [...new Set(tag)];
