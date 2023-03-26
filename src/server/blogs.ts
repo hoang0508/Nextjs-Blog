@@ -51,7 +51,6 @@ export async function getBlogs(): Promise<BlogType[]> {
       };
       return post;
     });
-  console.log(posts);
   return posts;
 }
 

@@ -2,11 +2,7 @@ import { BlogType } from "@/@types/type";
 import BlogHeader from "@/components/BlogHeader";
 import BlogPreview from "@/components/BlogPreview";
 import { getBlogs } from "@/server/blogs";
-import {
-  GetServerSideProps,
-  InferGetServerSidePropsType,
-  NextPage,
-} from "next";
+import { GetStaticProps, InferGetStaticPropsType, NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
 import { useMemo, useState } from "react";
@@ -14,8 +10,7 @@ import { useMemo, useState } from "react";
 const Home: NextPage = ({
   blogPost,
   tags,
-}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
-  console.log(blogPost);
+}: InferGetStaticPropsType<typeof getStaticProps>) => {
   // filterWord
   const [filterWord, setFilterWord] = useState<string[]>([]);
 
@@ -98,12 +93,7 @@ const Home: NextPage = ({
 };
 export default Home;
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  context.res.setHeader(
-    "Cache-Control",
-    "s-maxage=5, stale-while-revalidate=5"
-  );
-
+export const getStaticProps: GetStaticProps = async (context) => {
   const blog: BlogType[] = await getBlogs();
   const tag: string[] = blog?.flatMap((item) => item.tag);
   const tagBlog = [...new Set(tag)];
@@ -113,5 +103,24 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       blogPost: blog || [],
       tags: tagBlog,
     },
+    revalidate: 10,
   };
 };
+
+// export const getServerSideProps: GetServerSideProps = async (context) => {
+//   context.res.setHeader(
+//     "Cache-Control",
+//     "s-maxage=5, stale-while-revalidate=5"
+//   );
+
+//   const blog: BlogType[] = await getBlogs();
+//   const tag: string[] = blog?.flatMap((item) => item.tag);
+//   const tagBlog = [...new Set(tag)];
+
+//   return {
+//     props: {
+//       blogPost: blog || [],
+//       tags: tagBlog,
+//     },
+//   };
+// };

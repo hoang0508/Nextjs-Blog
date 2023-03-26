@@ -1,14 +1,14 @@
-import { BlogTypeDetails } from "@/@types/type";
+import { BlogType, BlogTypeDetails } from "@/@types/type";
 import BlogHeader from "@/components/BlogHeader";
-import { getBlogsDetails } from "@/server/blogs";
-import { GetServerSideProps, InferGetServerSidePropsType } from "next";
+import { getBlogs, getBlogsDetails } from "@/server/blogs";
+import { GetStaticPaths, GetStaticProps, InferGetStaticPropsType } from "next";
 import Head from "next/head";
 import React from "react";
 import parse from "html-react-parser";
 
 const BlogDetails = ({
   dataDetails,
-}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
+}: InferGetStaticPropsType<typeof getStaticProps>) => {
   return (
     <>
       <Head>
@@ -33,15 +33,33 @@ const BlogDetails = ({
   );
 };
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const router = context.query.id;
-  const id: number | undefined | string = Number(router);
-  const dataDetails: BlogTypeDetails = await getBlogsDetails(id);
+export default BlogDetails;
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  const blog: BlogType[] = await getBlogs();
+  return {
+    paths: blog.map((item) => ({
+      params: {
+        id: String(item.id),
+      },
+    })),
+    fallback: false,
+  };
+};
+
+export const getStaticProps: GetStaticProps = async (context) => {
+  const id: string | string[] | undefined = context?.params?.id;
+  const dataDetails: BlogTypeDetails = await getBlogsDetails(Number(id));
   return {
     props: {
       dataDetails,
     }, // will be passed to the page component as props
+    revalidate: 10,
   };
 };
 
-export default BlogDetails;
+// export const getServerSideProps: GetServerSideProps = async (context) => {
+//   const router = context.query.id;
+//   const id: number | undefined | string = Number(router);
+
+// };
